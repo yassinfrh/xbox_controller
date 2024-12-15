@@ -20,7 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'xbox_controller = xbox_controller.ControllerInputMapper:main',
+            'controller_input_mapper = xbox_controller.controller_input_mapper:main',
         ],
     },
 )
