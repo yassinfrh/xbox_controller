@@ -21,6 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
             'controller_input_mapper = xbox_controller.controller_input_mapper:main',
+            'controller_to_twist = xbox_controller.controller_to_twist:main',
         ],
     },
 )

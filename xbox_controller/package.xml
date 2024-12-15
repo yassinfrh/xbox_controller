@@ -8,6 +8,7 @@
   <license>TODO: License declaration</license>
 
   <depend>rclpy</depend>
+  <depend>geometry_msgs</depend>
 
   <exec_depend>xbox_controller_interfaces</exec_depend>
 
