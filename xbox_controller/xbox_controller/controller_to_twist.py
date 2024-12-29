@@ -63,7 +63,7 @@ class ControllerToTwist(Node):
     def _handle_button_event(self, msg):
         # Log button handling (extend with specific logic if needed)
         self.get_logger().info(f'Handling button event: {msg.type}')
-        playsound('/home/pi/ros_ws/src/xbox_controller/xbox_controller/7azza9.mp3')
+        playsound('/home/pi/ros_ws/src/xbox_controller/xbox_controller/7azza9.mp3', False)
         return
 
     def _handle_axis_event(self, msg):
