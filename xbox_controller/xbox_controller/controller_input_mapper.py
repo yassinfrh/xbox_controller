@@ -88,8 +88,7 @@ class ControllerInputMapper(Node):
             # Handle hat (D-pad) motion
             elif event.type == pygame.JOYHATMOTION:
                 direction = ControllerConstants.HAT_DIRECTIONS.get(event.value, "unknown direction")
-                if direction != "CENTER":
-                    self.publish_event(direction, 1.0)
+                self.publish_event(direction, 1.0)
 
 def main():
     rclpy.init()

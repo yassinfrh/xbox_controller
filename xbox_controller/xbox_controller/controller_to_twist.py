@@ -23,7 +23,7 @@ class ControllerEvents:
     # Hat Directions
     HAT_DIRECTIONS = {
         "LEFT", "RIGHT", 
-        "UP", "DOWN"
+        "UP", "DOWN", "CENTER"
     }
 
 # Convert controller events to Twist messages
@@ -38,9 +38,12 @@ class ControllerToTwist(Node):
             10
         )
         self.get_logger().info('Subscribed to topic: joystick/events')
-        self.publisher = self.create_publisher(Twist, 'cmd_vel', 10)
+        self.cmd_vel_publisher = self.create_publisher(Twist, 'cmd_vel', 10)
         self.get_logger().info('Publishing to topic: cmd_vel')
-        self.twist = Twist()
+        self.camera_twist_publisher = self.create_publisher(Twist, 'camera_twist', 10)
+        self.get_logger().info('Publishing to topic: camera_twist')
+        self.robot_twist = Twist()
+        self.camera_twist = Twist()
 
     def controller_event_callback(self, msg):
         self.get_logger().info(f'Received event: type={msg.type}, value={msg.value}')
@@ -78,30 +81,49 @@ class ControllerToTwist(Node):
             if value != 0:
                 value = (abs(value) - 0.4) / 0.6 * value / abs(value)
             
-            self.twist.angular.z = float(-value)
-            self.get_logger().info(f'Updated angular.z: {self.twist.angular.z}')
+            self.robot_twist.angular.z = float(-value)
+            self.get_logger().info(f'Updated angular.z: {self.robot_twist.angular.z}')
         elif msg.type == "RT":
             # Normalize value between 0.0 and 1.0
             value = (msg.value + 1) / 2
             # Remove deadzone
             if value < 0.05:
                 value = 0
-            self.twist.linear.x = float(value)
-            self.get_logger().info(f'Updated linear.x (forward): {self.twist.linear.x}')
+            self.robot_twist.linear.x = float(value)
+            self.get_logger().info(f'Updated linear.x (forward): {self.robot_twist.linear.x}')
         elif msg.type == "LT":
             # Normalize value between 0.0 and 1.0
             value = (msg.value + 1) / 2
             # Remove deadzone
             if value < 0.05:
                 value = 0
-            self.twist.linear.x = float(-value)
-            self.get_logger().info(f'Updated linear.x (backward): {self.twist.linear.x}')
-        self.publisher.publish(self.twist)
+            self.robot_twist.linear.x = float(-value)
+            self.get_logger().info(f'Updated linear.x (backward): {self.robot_twist.linear.x}')
+            
+        self.cmd_vel_publisher.publish(self.robot_twist)
         self.get_logger().info('Twist message published')
 
     def _handle_hat_event(self, msg):
         # Log hat handling (extend with specific logic if needed)
         self.get_logger().info(f'Handling hat event: {msg.type}')
+        if msg.type == "UP":
+            self.camera_twist.angular.y = -1.0
+            self.camera_twist.angular.z = 0.0
+        elif msg.type == "DOWN":
+            self.camera_twist.angular.y = 1.0
+            self.camera_twist.angular.z = 0.0
+        elif msg.type == "LEFT":
+            self.camera_twist.angular.y = 0.0
+            self.camera_twist.angular.z = 1.0
+        elif msg.type == "RIGHT":
+            self.camera_twist.angular.y = 0.0
+            self.camera_twist.angular.z = -1.0
+        elif msg.type == "CENTER":
+            self.camera_twist.angular.y = 0.0
+            self.camera_twist.angular.z = 0.0
+            
+        self.camera_twist_publisher.publish(self.camera_twist)
+        self.get_logger().info('Camera twist message published')
         return
 
 def main(args=None):
